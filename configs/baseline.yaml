@@ -1,0 +1,42 @@
+seed: 17
+
+model:
+  num_layers: 8
+  num_experts: 16
+  top_k: 2
+  num_gpus: 4
+  hidden_size: 2048
+  bytes_per_element: 2
+
+workload:
+  num_requests: 32
+  output_tokens: 64
+  max_batch_size: 8
+  arrival_interval_ms: 0.05
+  diffusion_block_size: 32
+  active_position_schedule: [32, 24, 16, 12, 8, 4, 2, 1]
+
+router:
+  distribution: request_correlated
+  zipf_alpha: 1.2
+  hot_expert_probability: 0.7
+  request_cluster_probability: 0.85
+  temporal_stability: 0.75
+
+compute:
+  attention_base_ms: 0.015
+  attention_token_ms: 0.0008
+  expert_launch_ms: 0.012
+  expert_peak_tokens_per_ms: 50.0
+  expert_saturation_tokens: 32
+
+network:
+  profile: nvlink_like
+  fixed_message_latency_ms: 0.006
+  bandwidth_gb_per_s: 450.0
+  congestion_factor: 0.02
+  aggregate_messages: true
+
+scheduler:
+  name: fifo
+  max_wait_ms: 2.0

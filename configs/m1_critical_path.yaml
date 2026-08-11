@@ -1,0 +1,12 @@
+# M1 profile: preserve the M0 workload while enabling explicit expert-weight and
+# per-EP-rank critical-path modeling. Values are synthetic until trace calibration.
+compute:
+  expert_weight_bytes: 134217728
+  expert_memory_bandwidth_gb_per_s: 3000.0
+
+network:
+  use_rank_critical_path: true
+
+scheduler:
+  base_overhead_ms: 0.002
+  candidate_evaluation_overhead_ms: 0.0002

@@ -1,0 +1,18 @@
+# M1 mechanism diagnostic: keep batching freedom large enough to compare objectives.
+# This is not the latency-safe production policy; deadline-bound scenarios follow.
+compute:
+  expert_weight_bytes: 134217728
+  expert_memory_bandwidth_gb_per_s: 3000.0
+
+network:
+  use_rank_critical_path: true
+
+scheduler:
+  max_wait_ms: 100.0
+  locality_weight: 0.25
+  locality_benefit_ms: 0.25
+  deadline_weight_ms: 0.25
+  kv_fragmentation_weight_ms: 0.10
+  progress_fragmentation_weight_ms: 1.0
+  base_overhead_ms: 0.002
+  candidate_evaluation_overhead_ms: 0.0002

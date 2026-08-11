@@ -1,0 +1,33 @@
+# Small enough for exhaustive global batch-sequence search.
+seed: 13
+
+model:
+  num_layers: 3
+  num_experts: 4
+  top_k: 1
+  num_gpus: 2
+  hidden_size: 256
+  bytes_per_element: 2
+
+workload:
+  num_requests: 4
+  output_tokens: 4
+  max_batch_size: 2
+  arrival_interval_ms: 0.02
+  diffusion_block_size: 2
+  active_position_schedule: [2, 1]
+
+compute:
+  expert_weight_bytes: 16777216
+  expert_memory_bandwidth_gb_per_s: 3000.0
+
+network:
+  fixed_message_latency_ms: 0.006
+  bandwidth_gb_per_s: 450.0
+  congestion_factor: 0.02
+  aggregate_messages: true
+  use_rank_critical_path: true
+
+scheduler:
+  max_wait_ms: 100.0
+  progress_fragmentation_weight_ms: 1.0

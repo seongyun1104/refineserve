@@ -1,0 +1,4 @@
+# Diagnostic profile: isolate the locality mechanism from the 2 ms deadline fallback.
+scheduler:
+  name: previous_route
+  max_wait_ms: 10000.0
