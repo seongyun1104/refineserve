@@ -96,6 +96,32 @@ scheduler from silently reading the current route.
 Replay is strict: a missing route or prior is an error. There is no synthetic fallback,
 because fallback would mix evidence classes inside one run.
 
+### Native LLaDA2 dense trajectory extension
+
+M2.1 uses compressed dense arrays because a stock denoising forward routes the entire
+clean-prefix/current-window tensor at every sparse layer. Its observation manifest adds:
+
+```text
+workload_class
+block_id
+denoise_step
+block_width
+model_forward_positions
+masked_positions_before_step
+masked_positions_after_step
+finalized_positions_this_step
+```
+
+`position_roles_dense.npz` labels each routed position immediately before the forward
+as `prefix`, `current_block_finalized`, or `current_block_masked`.
+`route_weights_dense.npz` stores selected weights after sigmoid, selected-score
+normalization, and routed scaling. IDs, weights, and roles share the observation
+`array_key` and are covered by the bundle checksum.
+
+The dense extension does not redefine `active_position_count`. Analyses must report
+model-forward routed positions, active masks, and newly finalized positions separately.
+See [M2.1 native route opportunity gate](m2_1_native_route_opportunity.md).
+
 ## Timing samples
 
 `expert_kernel_samples.csv`:

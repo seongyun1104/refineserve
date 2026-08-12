@@ -157,6 +157,16 @@ order:
 3. DiffusionGemma-26B-A4B-it: secondary cross-model validation
 ```
 
+The immediate gated roadmap is stricter than the model list:
+
+```text
+M2.1  native LLaDA2 route opportunity, no EP timing claim
+M2.2  native-shape 256-expert/top-8 true-EP timing replay
+M3    full LLaDA2.0-mini true-EP adapter only if both gates pass
+M4    native FIFO versus coordinated scheduler timing
+M5    width/policy ablation with quality constraints
+```
+
 For `LLaDA2.0-mini`, the standard checkpoint and generation semantics are held
 fixed. The initial primary setting is `block_length=32`, `steps=32`, BF16,
 EP=4, TP=1, and PP=1. Router scoring, remasking, model weights, and block

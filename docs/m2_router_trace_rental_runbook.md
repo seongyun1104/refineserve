@@ -17,8 +17,10 @@ checkpoint dtype: BF16
 transformers: 4.57.1 (checkpoint-declared compatibility version)
 GPU: one CUDA GPU with at least 48 GiB; H100 80 GB preferred for short runtime
 prefix length: 64, aligned to every tested block width
-block widths / initial active positions: 1,16,32,64
-segments: seeds 17,29,41,53,67; 32 requests each
+workloads: reasoning, code, general
+segments: seeds 17,29,41 per workload; 32 requests each
+native block width: 32
+native generation length: 128
 ```
 
 The checkpoint is approximately 32.5 GB. Confirm at least 45 GB free persistent disk
@@ -50,37 +52,33 @@ python -m pip install \
 python hardware/collect_llada2_router_trace.py \
   --model inclusionAI/LLaDA2.0-mini \
   --revision dad945cac317da394b390f82c7b40691d8a881ed \
+  --workloads reasoning code general --seeds 17 29 41 \
+  --generation-length 128 \
   --output results/hardware/contract-followup/llada2-router
 
-python hardware/screen_measured_router_trace.py \
+python hardware/analyze_native_route_opportunity.py \
   results/hardware/contract-followup/llada2-router \
-  --trace-phase native_denoising --all-iterations \
-  --output results/hardware/contract-followup/llada2-router-screen
+  --output results/hardware/contract-followup/llada2-native-opportunity
 ```
 
 The collector validates that every prompt fills the aligned clean prefix rather than
 treating padding as content. It uses the checkpoint's block-diagonal causal mask,
-captures all 19 sparse layers, and records three distinct width quantities:
+captures all 19 sparse layers, selected routing weights, exact pre-forward position
+roles, and the following distinct quantities:
 
 ```text
-controlled block width       = 1/16/32/64 only in the initial-width ablation
-native block width           = fixed 32 in the stock denoising trajectory
-model-forward positions      = clean prefix + current block because stock uses
-                               use_cache=False and recomputes both every step
-remaining masked positions   = changes with confidence/remasking and is useful
-                               progress, not model compute width
+native block width             = fixed 32
+model-forward routed positions = clean prefix + prior blocks + current block
+remaining masked positions     = changes with confidence
+finalized positions this step  = useful progress, not model compute width
 ```
 
-Confidence changes which positions remain masked; it does not shrink the stock model
-forward width. Every observation is labeled with `position_width_source` so an initial
-controlled-width point cannot be pooled with a width merely observed in the native
-trajectory. Dense routes are stored in compressed
-NPZ arrays with a request/step manifest; incomplete late-step fixed pools are retained
-in a coverage artifact and are not silently treated as 32-request cells. The screen
-assumes planned contiguous
-expert ownership:
-experts 0-63/64-127/128-191/192-255 on ranks 0/1/2/3. Pass a mapping JSON if the
-adapter placement changes.
+Confidence changes which current-block positions remain masked; it does not remove
+prefix or finalized positions from the stock forward. Dense IDs, weights, and position
+roles are stored in separate compressed NPZ arrays with a request/block/step manifest.
+The opportunity analysis evaluates both contiguous ownership and `expert_id % 4`
+round-robin ownership so router grouping is not confused with a universal scheduler
+effect.
 
 ## Evidence boundary and decision
 

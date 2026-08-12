@@ -29,15 +29,15 @@ native router-opportunity screen:
 python hardware/collect_llada2_router_trace.py \
   --revision dad945cac317da394b390f82c7b40691d8a881ed \
   --output results/hardware/contract-followup/llada2-router
-python hardware/screen_measured_router_trace.py \
+python hardware/analyze_native_route_opportunity.py \
   results/hardware/contract-followup/llada2-router \
-  --trace-phase native_denoising --all-iterations \
-  --output results/hardware/contract-followup/llada2-router-screen
+  --output results/hardware/contract-followup/llada2-native-opportunity
 ```
 
-The collector captures initial width ablations and a stock-semantics block-32 native
-denoising trajectory with the checkpoint's block-diagonal causal mask. It is route-only
-supporting calibration, not EP timing, quality, or finalization-correctness evidence.
+The collector captures a stock-semantics multi-block native denoising trajectory with
+the checkpoint's block-diagonal causal mask. Controlled initial-width ablations are
+optional. It is route-only supporting calibration, not EP timing, quality, or
+finalization-correctness evidence.
 Its native 256-expert/top-8 opportunity fraction must not be multiplied by the
 controlled toy 16-expert/top-2 timing fraction.
 

@@ -264,13 +264,13 @@ latency.
 2. Joint critical-path scheduler with unique-expert weight traffic, per-layer EP-rank
    timing, KV-rank load, deadlines, batch traces, and bounded online overhead (M1
    complete for the eight-layer contract).
-3. Native routing and NCCL/kernel trace-calibrated simulator (M2 preparation started;
-   see [trace contract](docs/m2_trace_contract.md)).
-4. Single-GPU PyTorch toy MoE to validate grouped execution and expert-weight curves.
-5. Four-GPU NCCL expert-parallel prototype with all-to-all and overlap.
-6. Native block-refinement model integration.
-7. Full diffusion evaluation only after the native runtime is calibrated.
-8. Scheduler/worker adapters for serving engines after the mechanism is validated.
+3. M2.1 native LLaDA2 route collection and request-composition opportunity analysis
+   ([gate contract](docs/m2_1_native_route_opportunity.md)).
+4. M2.2 native 256-expert/top-8 true-EP timing replay, without the full model.
+5. M3 LLaDA2.0-mini true-EP adapter, only if M2.1 and M2.2 pass.
+6. M4 native FIFO versus coordinated critical-path scheduler measurement.
+7. M5 block-width and denoising-policy ablation with systems and quality metrics.
+8. Serving-engine adapters only after the mechanism is validated.
 
 The current milestone intentionally excludes model training, real KV migration,
 offloading, TP/PP, learned route prediction, multi-node deployment, and engine

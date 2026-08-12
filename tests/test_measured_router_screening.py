@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 
 from hardware import screen_measured_router_trace
+from hardware.analyze_native_route_opportunity import analyze
 
 
 def _write_trace(path: Path) -> None:
@@ -192,3 +193,30 @@ def test_dense_measured_route_screen_preserves_step_metadata(
     assert cells.loc[0, "masked_positions_before_step_mean"] == 1.0
     assert cells.loc[0, "masked_positions_after_step_mean"] == 0.0
     assert cells.loc[0, "objective_lower_bound"] <= cells.loc[0, "fifo_objective"]
+
+
+def test_native_opportunity_analysis_checks_both_mappings(tmp_path: Path) -> None:
+    trace = tmp_path / "dense-trace"
+    output = tmp_path / "native-opportunity"
+    _write_dense_trace(trace)
+
+    result = analyze(
+        trace,
+        output,
+        world_size=2,
+        requests_per_rank=4,
+        batch_size=2,
+        restarts=4,
+        previous_route_gain_threshold=0.8,
+    )
+
+    scheduling = pd.read_csv(output / "native_scheduling_opportunity.csv")
+    correlations = pd.read_csv(output / "native_route_correlations.csv")
+    projections = pd.read_csv(output / "native_rank_projection.csv")
+    coverage = pd.read_csv(output / "native_trace_coverage.csv")
+    assert result["eligible_for_hardware_speedup_claim"] is False
+    assert set(scheduling["mapping"]) == {"contiguous", "round_robin"}
+    assert len(correlations) == 1
+    assert correlations.loc[0, "routed_positions"] == 1
+    assert len(projections) == 2
+    assert coverage.loc[0, "complete_for_fixed_pool_screen"] == 1
