@@ -1,6 +1,6 @@
 # M2 trace and calibration contract
 
-Status: implemented foundation
+Status: implemented foundation; calibration continuation closed after M2.1
 Date: 2026-08-04
 
 ## Purpose
@@ -161,7 +161,8 @@ Current implementation status:
   implemented;
 - partial or full 2x2 route/cost comparison runner: implemented;
 - native LLaDA2 route collection and route-opportunity analysis: complete;
-- native-shape kernel/network calibration and execution of the full 2x2 matrix: pending.
+- native-shape kernel/network calibration and execution of the full 2x2 matrix: not
+  pursued after the M2.1 negative magnitude result.
 
 Two calibration-model limits remain explicit. The implemented expert curve is
 one-dimensional in token count and must not mix measurements with different active

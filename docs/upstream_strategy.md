@@ -1,10 +1,19 @@
-# Conditional upstream strategy
+# Conditional upstream strategy (inactive)
 
-Status: deferred until native-model evidence
+Status: **CLOSED — NATIVE EVIDENCE GATE DID NOT PASS**
 
 Last checked: 2026-08-13
 
-## Decision
+## Final disposition
+
+M2.1 found less than 0.5% best-found request-composition headroom in every measured
+LLaDA2.0-mini cell. RefineServe is therefore closed without an SGLang RFC, vLLM port,
+or framework adapter. The material below is retained only as the historical strategy
+that would have applied after a positive native result. It is not an active roadmap.
+
+See the [project closure](project_closure.md).
+
+## Historical conditional decision
 
 If RefineServe passes its native route, native-shape timing, correctness, and
 end-to-end scheduler gates, the preferred upstream order is:

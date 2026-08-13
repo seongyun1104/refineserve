@@ -98,7 +98,7 @@ What remains supported is narrower:
 - The v1 timed interval included measurement and validation work that must be moved out
   of the isolated GPU data-path interval before another scaling claim is made.
 
-## Next gate
+## Final disposition
 
 1. Stock LLaDA2.0-mini multi-block router trace and summed batch/layer critical-load
    screen: **COMPLETE** ([result](m2_1_20260813_results.md)).
@@ -106,11 +106,13 @@ What remains supported is narrower:
    measured best-found route-objective reduction is below 0.5%.
 3. Do not combine toy timing and native route fractions as if their shapes were
    identical; Gate 2B left that time mapping unresolved.
-4. Keep the full true-EP model adapter deferred under the original scheduler gate.
-5. Use the measured route bundle to evaluate expert placement and native active-width
-   behavior before proposing a revised hardware milestone.
-6. Any later native adapter must hold model router, remasking, order policy, and
-   finalization fixed and record quality, useful progress, and wall-clock together.
+4. Keep the full true-EP model adapter deferred indefinitely.
+5. Close the request-composition hypothesis without proposing a revised hardware
+   milestone in this repository.
+6. Treat expert placement, active-width control, and position-level scheduling as new
+   hypotheses requiring separate project contracts.
+
+The final project decision is recorded in [`project_closure.md`](project_closure.md).
 
 The post-review implementation audit found and fixed a source-specific receive-split
 error in the constructed low-dose Gate 2B arm before rental. Gate 2B now measures its

@@ -1,24 +1,33 @@
 # RefineServe
 
-> **Research prototype — no native-model speedup claim yet.**
+> **Completed negative-result study — primary hypothesis not supported.**
 
 **Decode optimization beyond speculative decoding: native position-parallel
 refinement × MoE Expert Parallelism × critical-path scheduling.**
 
-`RefineServe` is an independent research runtime for native position-parallel decode
-serving. Its first track tests whether position-parallel refinement can improve
-expert-parallel MoE execution without causing excessive expert scattering,
-communication, or EP-rank critical-path imbalance. The first milestone is deliberately
-a deterministic discrete-event simulator, not a language model implementation.
+`RefineServe` investigated whether request-composition scheduling could reduce MoE
+Expert Parallel critical paths in native position-parallel diffusion decoding.
+Measurements on stock `inclusionAI/LLaDA2.0-mini` showed high temporal route
+persistence but weak inter-request route differentiation. The best-found scheduling
+headroom remained below 0.5% in every measured cell, below the existing 2% hardware
+measurement target. The project is therefore closed without a native-model speedup or
+upstream integration claim.
+
+This is a workload-scoped negative result. It does not claim that request-level
+scheduling is ineffective for every model or serving regime. It establishes that the
+measured LLaDA2.0-mini denoising workloads do not justify further investment in this
+project's request-composition control plane. See the
+[project closure](docs/project_closure.md) and the detailed
+[M2.1 result](docs/m2_1_20260813_results.md).
 
 The project keeps an explicit [claim and related-work ledger](docs/fact_check.md). The
 [native runtime scope decision](docs/decisions/0001-native-position-parallel-scope.md)
 defines the workload/runtime boundary.
 
-M1 demonstrates that critical-path-aware batch scheduling can reduce simulated MoE EP
-makespan under communication-bound, multi-layer position-parallel workloads, while
-short execution paths expose scheduler overhead as a limiting factor. M2 determines
-whether that result survives measured routing and calibrated GPU/NCCL costs.
+M1 showed that critical-path-aware batch scheduling can reduce simulated MoE EP
+makespan under communication-bound, multi-layer position-parallel workloads. M2 then
+showed that the controlled H100 toy path was unpowered for a percent-level scheduler
+claim, and M2.1 found negligible request-composition headroom in native LLaDA2 routes.
 
 The first H100×4 controlled run has established functional EP=4 correctness but not a
 calibrated K-scaling claim. Its near-flat 31 ms interval contained control,
@@ -34,15 +43,11 @@ Clock locking was denied, so the result is retained as hardware characterization
 than a percent-level performance claim. See the
 [Gate 2/2B result](docs/m2_gate2_20260812_results.md).
 
-Paid scheduler timing remains blocked until a native LLaDA2 denoising router trajectory
-has been screened with the same summed batch/layer critical-load objective and the
-native-shape timing opportunity passes its gate. Route-only screening is supporting
-calibration; it is not EP timing and cannot substitute for the native EP adapter.
-Scheduler authorization is evaluated against the destination-coalesced, full-iteration
-path rather than the assignment-granular EP-only correctness path. See the latest
-[external-review response](docs/external_review_response_v6.md), the
-[accounting changelog](docs/accounting_changelog.md), and the
-[Gate 2 internal double-check](docs/gate2_internal_double_check.md).
+The native LLaDA2 denoising route screen is complete. Route-only screening is
+supporting evidence rather than EP timing, but its sub-0.5% best-found magnitude does
+not justify M2.2 paid timing, a full true-EP adapter, or serving-engine integration.
+The earlier measurement contracts and review responses remain in the repository as an
+audit trail.
 
 ## Initial research contract
 
@@ -258,33 +263,28 @@ Processed positions are never treated as generated tokens. Diffusion may perform
 raw work, so the primary outputs are finalized tokens per second and end-to-end request
 latency.
 
-## Growth path
+## Final milestone status
 
-1. Deterministic synthetic position-parallel simulator (M0 complete).
-2. Joint critical-path scheduler with unique-expert weight traffic, per-layer EP-rank
-   timing, KV-rank load, deadlines, batch traces, and bounded online overhead (M1
-   complete for the eight-layer contract).
-3. M2.1 native LLaDA2 route collection and request-composition opportunity analysis
-   (complete; [result](docs/m2_1_20260813_results.md)).
-4. M2.2 native 256-expert/top-8 true-EP timing replay, without the full model
-   (not authorized for scheduler timing by the current M2.1 magnitude result).
-5. M3 LLaDA2.0-mini true-EP adapter, only if M2.1 and M2.2 pass.
-6. M4 native FIFO versus coordinated critical-path scheduler measurement.
-7. M5 block-width and denoising-policy ablation with systems and quality metrics.
-8. Serving-engine adapters only after the mechanism is validated.
+| Milestone | Status | Disposition |
+|---|---|---|
+| M0 synthetic feasibility | Complete | Functional position-parallel simulation established. |
+| M1 critical-path scheduler | Complete | Simulated benefit and scheduler-overhead boundary measured. |
+| M2 H100 characterization | Complete | EP=4 correctness passed; Gate 2 was `PASS-UNPOWERED` and Gate 2B was `PROXY_TIME_UNRESOLVED`. |
+| M2.1 native route opportunity | Complete — negative | Best-found request-composition headroom was below 0.5% in every measured LLaDA2 cell. |
+| M2.2 native-shape timing replay | Deferred indefinitely | Existing evidence does not justify another paid scheduler-timing run. |
+| M3 full LLaDA2 true-EP adapter | Deferred indefinitely | Its prerequisite gates did not pass. |
+| M4/M5 native scheduling and policy ablations | Not pursued | They would not test a supported continuation of the primary hypothesis. |
+| SGLang/vLLM upstream work | Not pursued | No RFC or implementation claim is warranted. |
 
-If M4 produces a reproducible native-model result, the conditional upstream order is
-SGLang first and vLLM second. This does not authorize framework work before the native
-evidence gates. See the [upstream strategy](docs/upstream_strategy.md).
+Expert placement, active-width control, and position-level scheduling may remain useful
+research questions, but they are different control variables. They are not presented
+as continuations or successes of RefineServe and require separately scoped projects.
 
-The current milestone intentionally excludes model training, real KV migration,
-offloading, TP/PP, learned route prediction, multi-node deployment, and engine
-integration. These are calibration or later-system concerns, not prerequisites for
-testing the central hypothesis.
+The completed study excluded model training, real KV migration, offloading, TP/PP,
+learned route prediction, multi-node deployment, and engine integration. None of these
+was needed to resolve the primary request-composition hypothesis.
 
-The selected scheduler minimizes a cheap proxy for predicted per-layer EP-rank
-critical path while treating route similarity as a secondary reuse signal. Expert
-cosine similarity alone can reduce messages while worsening the slowest GPU's
-completion time, especially when position parallelism already creates large expert
-batches. M2 now focuses on whether measured route, kernel, and collective traces retain
-the sign of this synthetic result.
+The selected scheduler minimized a cheap proxy for predicted per-layer EP-rank
+critical path while treating route similarity as a secondary reuse signal. The native
+trace established that route prediction was feasible, but the request-composition
+freedom available to exploit that prediction was too small to support continued work.

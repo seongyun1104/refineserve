@@ -1,11 +1,12 @@
 # M2.1 native route opportunity gate
 
-Status: complete; measured 2026-08-13
+Status: complete — negative; project closed 2026-08-13
 
 Result: [M2.1 native LLaDA2 route-opportunity result](m2_1_20260813_results.md).
 The formal result is placement/prediction dependent, but best-found objective reduction
 is below 0.5% in every measured cell. Paid M2.2 scheduler timing is not authorized by
-the current evidence.
+the current evidence, and the primary request-composition hypothesis is closed. See
+the [project closure](project_closure.md).
 
 ## Question
 
@@ -104,9 +105,9 @@ headroom is positive but previous-route capture is below 80%
 The decision is reported independently for contiguous and round-robin placement. A
 placement-dependent outcome is not collapsed into a universal pass.
 
-Even `ROUTE_SPACE_PASS` authorizes only M2.2 native-shape accessibility measurement.
-It does not authorize M3, which requires M2.2 to show recoverable timing above
-measurement resolution and scheduler overhead.
+The estimator-oriented `ROUTE_SPACE_PASS` label does not override the measured
+magnitude. Because all best-found reductions remained below 0.5%, M2.2 and M3 are
+deferred indefinitely rather than conditionally authorized.
 
 ## Commands
 
