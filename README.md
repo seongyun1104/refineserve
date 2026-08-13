@@ -272,6 +272,10 @@ latency.
 7. M5 block-width and denoising-policy ablation with systems and quality metrics.
 8. Serving-engine adapters only after the mechanism is validated.
 
+If M4 produces a reproducible native-model result, the conditional upstream order is
+SGLang first and vLLM second. This does not authorize framework work before the native
+evidence gates. See the [upstream strategy](docs/upstream_strategy.md).
+
 The current milestone intentionally excludes model training, real KV migration,
 offloading, TP/PP, learned route prediction, multi-node deployment, and engine
 integration. These are calibration or later-system concerns, not prerequisites for
