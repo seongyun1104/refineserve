@@ -100,22 +100,23 @@ What remains supported is narrower:
 
 ## Next gate
 
-1. Collect a stock LLaDA2.0-mini initial masked-block router trace and apply the
-   summed batch/layer critical-load screen under the planned EP=4 placement.
-2. Measure native-shape accessibility separately; do not reuse the toy denominator.
-3. Run scheduler timing only if both the native-shape timing gate and native workload
-   opportunity gate pass. Do not combine toy timing and native route fractions as if
-   their shapes were identical.
-4. Bring up true EP correctness with `inclusionAI/LLaDA-MoE-7B-A1B-Instruct`.
-5. Replace the LLaDA2.0-mini stock tensor-parallel MoE path with rank-owned EP=4.
-6. Hold model router, remasking, order policy, and finalization fixed.
-7. Record quality, useful progress, and wall-clock together.
+1. Stock LLaDA2.0-mini multi-block router trace and summed batch/layer critical-load
+   screen: **COMPLETE** ([result](m2_1_20260813_results.md)).
+2. Paid native-shape request-composition timing: **NOT AUTHORIZED** because every
+   measured best-found route-objective reduction is below 0.5%.
+3. Do not combine toy timing and native route fractions as if their shapes were
+   identical; Gate 2B left that time mapping unresolved.
+4. Keep the full true-EP model adapter deferred under the original scheduler gate.
+5. Use the measured route bundle to evaluate expert placement and native active-width
+   behavior before proposing a revised hardware milestone.
+6. Any later native adapter must hold model router, remasking, order policy, and
+   finalization fixed and record quality, useful progress, and wall-clock together.
 
 The post-review implementation audit found and fixed a source-specific receive-split
 error in the constructed low-dose Gate 2B arm before rental. Gate 2B now measures its
 own FIFO local/minimal/real accessibility, uses precomputed global send/receive splits,
 and requires confidence-bound transport identification before reporting transmission.
-See `docs/gate2_internal_double_check.md`. No new paid run has started.
+See `docs/gate2_internal_double_check.md` for the earlier Gate 2 audit.
 
 The primary native model is `inclusionAI/LLaDA2.0-mini`; DiffusionGemma is secondary
 cross-model validation.

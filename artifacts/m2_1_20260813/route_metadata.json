@@ -1,0 +1,101 @@
+{
+  "active_positions": [
+    1,
+    16,
+    32,
+    64
+  ],
+  "artifact_sha256": {
+    "denoising_results.csv": "bde2f5d70b736c7070c3c96f5e16584063c23bc8fe86834087da0c57fc600b38",
+    "position_roles_dense.npz": "2d644d9980de58133c06e0c106c9857e286d6ac0f7d289dcffe9aa2d0c47a177",
+    "prompt_manifest.csv": "063a218bea443ceef0191b573fdfc5dc9a68fd665afa0dd52d5fb435cf169ce2",
+    "route_observations.csv": "e133dcd69f216e0a60294c9bb69aa9919e9f9814174c332473f99faccba2d60c",
+    "route_weights_dense.npz": "fce60d45a77523a96abc7ebce03279553091256a80e01b5679a95dfdbf429d4d",
+    "routes_dense.npz": "1904247a267356eff1956c4c6a00fa03663026921f9c7a90056b285e02acd8a4"
+  },
+  "attention_mask_semantics": "official checkpoint block-diagonal causal mask; each observation contains an aligned clean prefix and one fully masked block",
+  "block_width_equals_active_positions": false,
+  "block_widths": [
+    1,
+    16,
+    32,
+    64
+  ],
+  "compute_capability": "9.0",
+  "elapsed_s_including_load": 2083.1438517980278,
+  "eligible_for_full_native_replay": false,
+  "eligible_for_gate3_timing_authorization": false,
+  "eligible_for_scheduler_opportunity_screening": true,
+  "evidence_class": "MEASURED_ROUTE_SUPPORTING_CALIBRATION",
+  "finalized_positions_per_step": "derivable_from_observation_manifest",
+  "first_sparse_layer": 1,
+  "gpu_model": "NVIDIA H100 PCIe",
+  "hypothetical_ep_mapping_required_for_screening": true,
+  "inference_microbatch_size": 8,
+  "mask_id": 156895,
+  "model_identifier": "inclusionAI/LLaDA2.0-mini",
+  "model_revision": "dad945cac317da394b390f82c7b40691d8a881ed",
+  "native_denoising_capture": {
+    "block_width": 32,
+    "compute_width_semantics": "the full block executes every unfinished request step; remaining masked positions are recorded separately",
+    "generation_blocks": 4,
+    "generation_length": 128,
+    "maximum_steps": 32,
+    "temperature": 0.0,
+    "threshold": 0.95,
+    "top_k_sampling": null,
+    "top_p_sampling": null
+  },
+  "native_semantics_schema_version": 1,
+  "num_experts": 256,
+  "num_layers": 20,
+  "order_policy": "phase_specific_initial_or_stock_confidence_threshold",
+  "position_role_storage": {
+    "array_shape": "[requests_in_observation, model_forward_positions]",
+    "codes": {
+      "0": "prefix",
+      "1": "current_block_finalized",
+      "2": "current_block_masked"
+    },
+    "dtype": "uint8",
+    "format": "compressed_dense_npz",
+    "state_time": "immediately_before the routed model forward"
+  },
+  "position_width_semantics": {
+    "initial_width_ablation": "active_positions is a controlled new-block width",
+    "native_denoising": "block width is fixed at 32 in the stock loop; masked positions vary with confidence, while every unfinished request recomputes the full prefix+block model_forward_positions"
+  },
+  "prefix_length": 64,
+  "python_version": "3.11.11",
+  "pytorch_version": "2.6.0+cu124",
+  "requests_per_segment": 32,
+  "route_storage": {
+    "array_shape": "[requests_in_observation, sparse_layers, model_forward_positions, top_k]",
+    "dtype": "uint16",
+    "format": "compressed_dense_npz_plus_observation_manifest"
+  },
+  "route_weight_storage": {
+    "array_shape": "[requests_in_observation, sparse_layers, model_forward_positions, top_k]",
+    "derivation": "sigmoid(router_logits), gather selected IDs, normalize, then apply routed_scaling_factor",
+    "dtype": "float16",
+    "format": "compressed_dense_npz"
+  },
+  "routed_scaling_factor": 2.5,
+  "routing_weights_captured": true,
+  "seeds": [
+    17,
+    29,
+    41
+  ],
+  "segments_per_workload": 3,
+  "semantic_limit": "captures optional initial width ablations and stock-semantics multi-block denoising routing; it does not measure EP timing or establish task quality",
+  "top_k": 8,
+  "torch_cuda_version": "12.4",
+  "trace_kind": "native_llada2_dense_router_observational",
+  "transformers_version": "4.57.1",
+  "workloads": [
+    "reasoning",
+    "code",
+    "general"
+  ]
+}

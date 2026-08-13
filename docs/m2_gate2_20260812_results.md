@@ -107,12 +107,12 @@ copied locally before teardown, and Vast.ai reported zero active instances after
 
 ## Next step
 
-Do not repeat Gate 2 with more toy repetitions and do not run Gate 3. The next useful
-step is a cheap, stock **LLaDA2.0-mini router-trace collection** that preserves request
-ID, denoising step, position, layer, top-k expert IDs, and route weights. Screen those
-routes with the native 256-expert/top-8 shape and a separately measured native-shape
-accessibility denominator. LLaDA-MoE-7B remains only the later true-EP adapter plumbing
-smoke target.
+Do not repeat Gate 2 with more toy repetitions and do not run Gate 3. The prescribed
+stock LLaDA2.0-mini route collection was completed on 2026-08-13; see the
+[M2.1 result](m2_1_20260813_results.md). Its best-found request-composition headroom is
+below 0.5% in every measured cell, so paid native-shape scheduler timing is not
+authorized by the current evidence. LLaDA-MoE-7B remains only a later true-EP adapter
+plumbing smoke target.
 
 Raw and analyzed artifacts are under:
 

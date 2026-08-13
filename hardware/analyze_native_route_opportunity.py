@@ -203,11 +203,40 @@ def _load_observations(trace: Path) -> tuple[dict[str, object], list[NativeObser
     return metadata, observations
 
 
-def _jaccard(left: np.ndarray, right: np.ndarray) -> float:
-    left_set = set(int(value) for value in left.reshape(-1))
-    right_set = set(int(value) for value in right.reshape(-1))
-    union = left_set | right_set
-    return len(left_set & right_set) / len(union) if union else 1.0
+def _route_bitsets(routes: np.ndarray, num_experts: int) -> np.ndarray:
+    """Encode expert sets as uint64 words while preserving exact set semantics."""
+    if num_experts <= 0:
+        raise ValueError("num_experts must be positive")
+    if routes.ndim < 1 or routes.shape[-1] <= 0:
+        raise ValueError("routes must have a non-empty top-k dimension")
+    if np.any(routes < 0) or np.any(routes >= num_experts):
+        raise ValueError("route contains an out-of-range expert")
+    leading_shape = routes.shape[:-1]
+    flat_routes = routes.reshape(-1, routes.shape[-1]).astype(np.int64, copy=False)
+    words = (num_experts + 63) // 64
+    encoded = np.zeros((len(flat_routes), words), dtype=np.uint64)
+    rows = np.repeat(np.arange(len(flat_routes)), routes.shape[-1])
+    experts = flat_routes.reshape(-1)
+    word_ids = experts // 64
+    bit_ids = (experts % 64).astype(np.uint64, copy=False)
+    bit_values = np.left_shift(np.uint64(1), bit_ids)
+    np.bitwise_or.at(encoded, (rows, word_ids), bit_values)
+    return encoded.reshape(*leading_shape, words)
+
+
+def _paired_bitset_jaccard(left: np.ndarray, right: np.ndarray) -> np.ndarray:
+    if left.shape != right.shape:
+        raise ValueError("paired bitsets must have identical shapes")
+    intersection = np.bitwise_count(np.bitwise_and(left, right)).sum(axis=-1)
+    left_size = np.bitwise_count(left).sum(axis=-1)
+    right_size = np.bitwise_count(right).sum(axis=-1)
+    union = left_size + right_size - intersection
+    return np.divide(
+        intersection,
+        union,
+        out=np.ones_like(intersection, dtype=np.float64),
+        where=union != 0,
+    )
 
 
 def _cosine(left: np.ndarray, right: np.ndarray) -> float:
@@ -219,20 +248,25 @@ def _histogram(routes: np.ndarray, num_experts: int) -> np.ndarray:
     return np.bincount(routes.reshape(-1), minlength=num_experts).astype(np.float64)
 
 
-def _spatial_jaccard(observation: NativeObservation, role: int) -> float:
+def _spatial_jaccard(
+    observation: NativeObservation, role: int, num_experts: int
+) -> float:
     values: list[float] = []
     for request in range(len(observation.request_ids)):
         positions = np.flatnonzero(observation.roles[request] == role)
         if len(positions) < 2:
             continue
         for layer in range(observation.routes.shape[1]):
-            for left, right in itertools.combinations(positions.tolist(), 2):
-                values.append(
-                    _jaccard(
-                        observation.routes[request, layer, left],
-                        observation.routes[request, layer, right],
-                    )
-                )
+            bitsets = _route_bitsets(
+                observation.routes[request, layer, positions], num_experts
+            )
+            intersection = np.bitwise_count(
+                np.bitwise_and(bitsets[:, None, :], bitsets[None, :, :])
+            ).sum(axis=-1)
+            sizes = np.bitwise_count(bitsets).sum(axis=-1)
+            union = sizes[:, None] + sizes[None, :] - intersection
+            upper = np.triu_indices(len(positions), k=1)
+            values.extend((intersection[upper] / union[upper]).tolist())
     return float(np.mean(values)) if values else float("nan")
 
 
@@ -251,25 +285,23 @@ def _temporal_metrics(
     if not common_requests:
         return float("nan"), float("nan")
     common_positions = min(current.routes.shape[2], previous.routes.shape[2])
-    jaccards: list[float] = []
-    cosine_values: list[float] = []
-    for request_id in common_requests:
-        current_request = current_index[request_id]
-        previous_request = previous_index[request_id]
-        for layer in range(current.routes.shape[1]):
-            for position in range(common_positions):
-                jaccards.append(
-                    _jaccard(
-                        current.routes[current_request, layer, position],
-                        previous.routes[previous_request, layer, position],
-                    )
-                )
-        cosine_values.append(
-            _cosine(
-                _histogram(current.routes[current_request], num_experts),
-                _histogram(previous.routes[previous_request], num_experts),
-            )
+    current_requests = [current_index[request_id] for request_id in common_requests]
+    previous_requests = [previous_index[request_id] for request_id in common_requests]
+    current_routes = current.routes[current_requests, :, :common_positions]
+    previous_routes = previous.routes[previous_requests, :, :common_positions]
+    jaccards = _paired_bitset_jaccard(
+        _route_bitsets(current_routes, num_experts),
+        _route_bitsets(previous_routes, num_experts),
+    )
+    cosine_values = [
+        _cosine(
+            _histogram(current.routes[current_request], num_experts),
+            _histogram(previous.routes[previous_request], num_experts),
         )
+        for current_request, previous_request in zip(
+            current_requests, previous_requests, strict=True
+        )
+    ]
     return float(np.mean(jaccards)), float(np.mean(cosine_values))
 
 
@@ -530,10 +562,10 @@ def analyze(
                     observation.finalized.mean()
                 ),
                 "masked_position_spatial_jaccard": _spatial_jaccard(
-                    observation, ROLE_CURRENT_MASKED
+                    observation, ROLE_CURRENT_MASKED, num_experts
                 ),
                 "finalized_position_spatial_jaccard": _spatial_jaccard(
-                    observation, ROLE_CURRENT_FINALIZED
+                    observation, ROLE_CURRENT_FINALIZED, num_experts
                 ),
                 "position_temporal_jaccard": temporal_jaccard,
                 "within_request_temporal_signature_cosine": temporal_cosine,

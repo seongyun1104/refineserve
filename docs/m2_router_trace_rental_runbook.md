@@ -1,6 +1,8 @@
 # M2 LLaDA2 router-trace single-GPU runbook
 
-Status: **PREPARED; PAID RUN NOT STARTED**
+Status: **COMPLETE; INSTANCE DESTROYED 2026-08-13**
+
+Result: [M2.1 native LLaDA2 route-opportunity result](m2_1_20260813_results.md).
 
 ## Purpose
 
@@ -32,8 +34,9 @@ before purchase so download, cache metadata, and trace output do not fail mid-re
 2. Confirm the model snapshot is accessible before starting the paid clock when the
    provider supports volume preloading; otherwise make download time explicit.
 3. Create an isolated environment. Do not downgrade the H100x4 Gate 2 environment.
-4. Run collector `--help`, import checks, and a one-request shape smoke before the full
-   five-segment collection.
+4. Run collector `--help`, import checks, and a one-workload, one-seed, one-block
+   32-request smoke before the full nine-segment collection. The smoke keeps the fixed
+   request-pool contract while reducing generated work.
 5. Copy trace and hashes off-host, then destroy the instance.
 
 ## Environment
@@ -47,6 +50,26 @@ python -m pip install \
 ```
 
 ## Collection and screening
+
+Smoke test:
+
+```bash
+python hardware/collect_llada2_router_trace.py \
+  --model inclusionAI/LLaDA2.0-mini \
+  --revision dad945cac317da394b390f82c7b40691d8a881ed \
+  --workloads general --seeds 17 \
+  --generation-length 32 \
+  --output results/hardware/contract-followup/llada2-router-smoke
+
+python hardware/analyze_native_route_opportunity.py \
+  results/hardware/contract-followup/llada2-router-smoke \
+  --output results/hardware/contract-followup/llada2-native-opportunity-smoke
+```
+
+The smoke output validates loading, route shapes, native progress, artifact hashes,
+and analyzer compatibility. It is not the M2.1 decision bundle.
+
+Full collection:
 
 ```bash
 python hardware/collect_llada2_router_trace.py \

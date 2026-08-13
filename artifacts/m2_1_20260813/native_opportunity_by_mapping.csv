@@ -1,0 +1,3 @@
+mapping,status,cells,positive_headroom_fraction,best_found_headroom_fraction_median,best_found_headroom_fraction_p25,previous_route_gain_capture_median,previous_route_gain_capture_p25
+contiguous,PREVIOUS_ROUTE_PASS,493,0.7890466531440162,0.0004304305221030652,6.719797868480116e-05,1.0,0.8302134646962234
+round_robin,PREDICTION_GAP,493,0.8073022312373225,0.0005286845244550483,0.00010315942945958213,0.946060606060606,0.7104017770909794

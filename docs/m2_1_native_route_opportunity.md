@@ -1,6 +1,11 @@
 # M2.1 native route opportunity gate
 
-Status: implementation complete; native trace not yet collected
+Status: complete; measured 2026-08-13
+
+Result: [M2.1 native LLaDA2 route-opportunity result](m2_1_20260813_results.md).
+The formal result is placement/prediction dependent, but best-found objective reduction
+is below 0.5% in every measured cell. Paid M2.2 scheduler timing is not authorized by
+the current evidence.
 
 ## Question
 

@@ -10,7 +10,11 @@ import numpy as np
 import pandas as pd
 
 from hardware import screen_measured_router_trace
-from hardware.analyze_native_route_opportunity import analyze
+from hardware.analyze_native_route_opportunity import (
+    _paired_bitset_jaccard,
+    _route_bitsets,
+    analyze,
+)
 
 
 def _write_trace(path: Path) -> None:
@@ -57,6 +61,18 @@ def _write_trace(path: Path) -> None:
 
 def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def test_route_bitsets_preserve_exact_jaccard() -> None:
+    left = np.asarray([[[1, 2, 65], [4, 5, 6]]], dtype=np.int64)
+    right = np.asarray([[[2, 3, 65], [4, 7, 8]]], dtype=np.int64)
+
+    values = _paired_bitset_jaccard(
+        _route_bitsets(left, 128),
+        _route_bitsets(right, 128),
+    )
+
+    assert np.allclose(values, [[0.5, 0.2]])
 
 
 def _write_dense_trace(path: Path) -> None:

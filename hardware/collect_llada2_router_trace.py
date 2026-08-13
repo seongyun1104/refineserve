@@ -163,12 +163,15 @@ def block_attention_mask(
     prefix_length: int,
     block_width: int,
     device: object,
+    batch_size: int = 1,
 ) -> object:
     """Reproduce the checkpoint's block-diagonal causal mask for one new block."""
     import torch
 
     if prefix_length % block_width:
         raise ValueError("prefix length must be divisible by every block width")
+    if batch_size <= 0:
+        raise ValueError("batch size must be positive")
     num_blocks = prefix_length // block_width + 1
     total = prefix_length + block_width
     block_mask = torch.tril(torch.ones(num_blocks, num_blocks, device=device))
@@ -177,6 +180,7 @@ def block_attention_mask(
         .repeat_interleave(block_width, dim=1)[:total, :total]
         .unsqueeze(0)
         .unsqueeze(0)
+        .expand(batch_size, -1, -1, -1)
         .log()
         .to(torch.bfloat16)
     )
@@ -355,6 +359,7 @@ def main() -> None:
                             args.prefix_length,
                             block_width,
                             device,
+                            batch_size=args.microbatch_size,
                         ),
                         position_ids=position_ids,
                         use_cache=False,
@@ -455,6 +460,7 @@ def main() -> None:
                                 active_prefix.shape[1],
                                 block_width,
                                 device,
+                                batch_size=len(active_local),
                             ),
                             position_ids=position_ids,
                             use_cache=False,

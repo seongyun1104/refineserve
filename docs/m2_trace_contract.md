@@ -160,7 +160,8 @@ Current implementation status:
 - rank-local network-curve injection into layer execution and scheduler estimation:
   implemented;
 - partial or full 2x2 route/cost comparison runner: implemented;
-- measured-trace collection and execution of the full matrix: pending.
+- native LLaDA2 route collection and route-opportunity analysis: complete;
+- native-shape kernel/network calibration and execution of the full 2x2 matrix: pending.
 
 Two calibration-model limits remain explicit. The implemented expert curve is
 one-dimensional in token count and must not mix measurements with different active

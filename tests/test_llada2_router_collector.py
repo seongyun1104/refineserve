@@ -19,6 +19,18 @@ def test_block_attention_mask_matches_block_causal_semantics() -> None:
     assert allowed[5].tolist() == [True, True, True, True, True, True]
 
 
+def test_block_attention_mask_expands_to_runtime_batch() -> None:
+    mask = block_attention_mask(
+        prefix_length=4,
+        block_width=2,
+        device="cpu",
+        batch_size=3,
+    )
+
+    assert mask.shape == (3, 1, 6, 6)
+    assert torch.equal(mask[0], mask[1])
+
+
 def test_block_attention_mask_requires_aligned_prefix() -> None:
     try:
         block_attention_mask(prefix_length=3, block_width=2, device="cpu")

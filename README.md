@@ -265,8 +265,9 @@ latency.
    timing, KV-rank load, deadlines, batch traces, and bounded online overhead (M1
    complete for the eight-layer contract).
 3. M2.1 native LLaDA2 route collection and request-composition opportunity analysis
-   ([gate contract](docs/m2_1_native_route_opportunity.md)).
-4. M2.2 native 256-expert/top-8 true-EP timing replay, without the full model.
+   (complete; [result](docs/m2_1_20260813_results.md)).
+4. M2.2 native 256-expert/top-8 true-EP timing replay, without the full model
+   (not authorized for scheduler timing by the current M2.1 magnitude result).
 5. M3 LLaDA2.0-mini true-EP adapter, only if M2.1 and M2.2 pass.
 6. M4 native FIFO versus coordinated critical-path scheduler measurement.
 7. M5 block-width and denoising-policy ablation with systems and quality metrics.

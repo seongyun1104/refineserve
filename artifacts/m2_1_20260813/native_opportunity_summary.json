@@ -1,0 +1,39 @@
+{
+  "best_found_is_exact_oracle": false,
+  "complete_observations": 493,
+  "eligible_for_hardware_speedup_claim": false,
+  "evidence_class": "MEASURED_ROUTE_SUPPORTING_CALIBRATION",
+  "mapping_summaries": [
+    {
+      "best_found_headroom_fraction_median": 0.0004304305221030652,
+      "best_found_headroom_fraction_p25": 6.719797868480116e-05,
+      "cells": 493,
+      "mapping": "contiguous",
+      "positive_headroom_fraction": 0.7890466531440162,
+      "previous_route_gain_capture_median": 1.0,
+      "previous_route_gain_capture_p25": 0.8302134646962234,
+      "status": "PREVIOUS_ROUTE_PASS"
+    },
+    {
+      "best_found_headroom_fraction_median": 0.0005286845244550483,
+      "best_found_headroom_fraction_p25": 0.00010315942945958213,
+      "cells": 493,
+      "mapping": "round_robin",
+      "positive_headroom_fraction": 0.8073022312373225,
+      "previous_route_gain_capture_median": 0.946060606060606,
+      "previous_route_gain_capture_p25": 0.7104017770909794,
+      "status": "PREDICTION_GAP"
+    }
+  ],
+  "mappings": [
+    "contiguous",
+    "round_robin"
+  ],
+  "planner_objective": "sum_over_batch_layer_of_max_destination_rank_load",
+  "previous_route_gain_threshold": 0.8,
+  "semantic_limit": "Route-space opportunity only. This result contains no measured EP dispatch, expert-compute, combine, or scheduler wall time.",
+  "source_model": "inclusionAI/LLaDA2.0-mini",
+  "source_revision": "dad945cac317da394b390f82c7b40691d8a881ed",
+  "source_trace": "results/hardware/contract-followup/llada2-router",
+  "status": "ROUTE_SPACE_MAPPING_OR_PREDICTION_DEPENDENT"
+}
